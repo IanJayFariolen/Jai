@@ -1,0 +1,58 @@
+ private void SignUp_btn_Click(object sender, EventArgs e)
+        {
+            if(register_username.Text == "" || register_passwordbtn.Text == "" || register_cpasswordbtn.Text == "")
+            {
+                MessageBox.Show("Please fill all blank fields", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                using (SqlConnection connect = new SqlConnection(conn))
+                {
+                    connect.Open();
+
+                    string checkUsern = "SELECT username FROM mydata WHERE username=@usern";
+
+
+                    using (SqlCommand checkU = new SqlCommand(checkUsern, connect))
+                    {
+                        checkU.Parameters.AddWithValue("@usern", register_username.Text.Trim());
+
+                        SqlDataAdapter adapter = new SqlDataAdapter(checkU);
+                        DataTable table = new DataTable();
+                        adapter.Fill(table);
+
+                        if(table.Rows.Count != 0)
+                        {
+                            string TempEmail = register_username.Text.Substring(0, 1).ToUpper() + register_username.Text.Substring(1);
+                            MessageBox.Show($"{TempEmail} is existing already ","Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }else if (register_username.Text.Length < 0)
+                        {
+                            MessageBox.Show("Invalid Password ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }else if (register_passwordbtn.Text != register_cpasswordbtn.Text)
+                        {
+                            MessageBox.Show("Password does not match ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        else
+                        {
+                            string query = "INSERT INTO mydata (username, password)" + "VALUES(@usern,@pass)";
+
+                            using (SqlCommand cmd = new SqlCommand(query, connect))
+                            {
+                                cmd.Parameters.AddWithValue("@usern", register_username.Text.Trim());
+                                cmd.Parameters.AddWithValue("@pass", register_passwordbtn.Text.Trim());
+                                cmd.ExecuteNonQuery();
+
+                                MessageBox.Show("Registered successfully ", "Information Message"
+                                    , MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                                Form1 loginForm = new Form1();
+                                loginForm.Show();
+
+                                this.Hide();
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
